@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using EvalonServer.Window;
 
 namespace EvalonServer
@@ -19,11 +7,11 @@ namespace EvalonServer
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : System.Windows.Window
+    public partial class MainWindow
     {
         public MainWindow()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
 
@@ -31,7 +19,7 @@ namespace EvalonServer
         #region 关闭窗口
         private void QuitBtnClick(object sender, RoutedEventArgs e)
         {
-            Close();
+            this.Close();
         }
         #endregion
 
@@ -41,10 +29,10 @@ namespace EvalonServer
         {
             using (var context=new EvalonEntities())
             {
-                var login = (from u in context.登录信息表
-                    where (u.用户名 == UsernameTextBox.Text.Trim()
-                           && u.密码 == PwdTextBox.Password.Trim() && u.用户类型 == "管理员")
-                    select u).FirstOrDefault();
+                var login = (context.登录信息表.Where(
+                    u =>
+                    (u.用户名 == this.UsernameTextBox.Text.Trim() && u.密码 == this.PwdTextBox.Password.Trim()
+                     && u.用户类型 == "管理员"))).FirstOrDefault();
                 if (login == null)
                 {
                     MessageBox.Show("请输入正确的用户名或密码");
@@ -53,7 +41,7 @@ namespace EvalonServer
                 {
                     MessageBox.Show("登陆成功");
                     var adminWindow=new AdminWindow();
-                    Close();
+                    this.Close();
                     adminWindow.Show();
                 }
             }

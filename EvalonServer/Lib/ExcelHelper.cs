@@ -1,26 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
-using NPOI.HSSF.UserModel;
-
-
-namespace EvalonServer.Lib
+﻿namespace EvalonServer.Lib
 {
-    class ExcelHelper : IDisposable
+    using System;
+    using System.Data;
+    using System.IO;
+
+    using NPOI.HSSF.UserModel;
+    using NPOI.SS.UserModel;
+    using NPOI.XSSF.UserModel;
+
+    public sealed class ExcelHelper : IDisposable
     {
         private string fileName = null; //文件名
         private IWorkbook workbook = null;
         private FileStream fs = null;
         private bool disposed;
 
+        public string FileName
+        {
+            get
+            {
+                return fileName;
+            }
+
+            set
+            {
+                fileName = value;
+            }
+        }
+
         public ExcelHelper(string fileName)
         {
-            this.fileName = fileName;
+            this.FileName = fileName;
             disposed = false;
         }
 
@@ -33,19 +43,19 @@ namespace EvalonServer.Lib
         /// <returns>导入数据行数(包含列名那一行)</returns>
         public int DataTableToExcel(DataTable data, string sheetName, bool isColumnWritten)
         {
-            int i = 0;
+            var i = 0;
             int j = 0;
             int count = 0;
-            ISheet sheet = null;
 
-            fs = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            if (fileName.IndexOf(".xlsx") > 0) // 2007版本
+            this.fs = new FileStream(FileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            if (FileName.IndexOf(".xlsx") > 0) // 2007版本
                 workbook = new XSSFWorkbook();
-            else if (fileName.IndexOf(".xls") > 0) // 2003版本
+            else if (FileName.IndexOf(".xls") > 0) // 2003版本
                 workbook = new HSSFWorkbook();
 
             try
             {
+                ISheet sheet = null;
                 if (workbook != null)
                 {
                     sheet = workbook.CreateSheet(sheetName);
@@ -101,10 +111,10 @@ namespace EvalonServer.Lib
             int startRow = 0;
             try
             {
-                fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-                if (fileName.IndexOf(".xlsx") > 0) // 2007版本
+                fs = new FileStream(FileName, FileMode.Open, FileAccess.Read);
+                if (FileName.IndexOf(".xlsx") > 0) // 2007版本
                     workbook = new XSSFWorkbook(fs);
-                else if (fileName.IndexOf(".xls") > 0) // 2003版本
+                else if (FileName.IndexOf(".xls") > 0) // 2003版本
                     workbook = new HSSFWorkbook(fs);
 
                 if (sheetName != null)
@@ -178,7 +188,7 @@ namespace EvalonServer.Lib
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!this.disposed)
             {
