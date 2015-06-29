@@ -29,8 +29,6 @@ namespace EvalonServer.Window
         }
         #endregion
 
-
-
         #region 确认修改登录信息表
         private void ConfirmChangeLoginInfoBtnClick(object sender, RoutedEventArgs e)
         {
@@ -65,7 +63,6 @@ namespace EvalonServer.Window
         }
         #endregion
 
-
         #region 确认从Excel文件里面添加 
         private void ButtonClick(object sender, RoutedEventArgs e)
         {
@@ -73,37 +70,40 @@ namespace EvalonServer.Window
             {
                 var items = this.NewLoginGrid.ItemsSource;
                 var usernames = (from l in context.登录信息表 select l.用户名).ToList<string>();
-                foreach (var item in items)
+                if (items != null)
                 {
-                    var l = item as 登录信息表;
-                    if (l != null && usernames.Contains(l.用户名))
+                    foreach (var item in items)
                     {
-                        MessageBox.Show("存在与原来的用户名冲突");
-                    }
-                    else
-                    {
-                        if (Login.LoginCheck(item as 登录信息表))
+                        var l = item as 登录信息表;
+                        if (l != null && usernames.Contains(l.用户名))
                         {
-                            context.登录信息表.Add((item as 登录信息表));
-                            context.SaveChanges();
+                            MessageBox.Show("存在与原来的用户名冲突");
                         }
                         else
                         {
-                            var 登录信息表 = item as 登录信息表;
-                            if (登录信息表 != null)
+                            if (Login.LoginCheck(item as 登录信息表))
                             {
-                                MessageBox.Show(string.Format("参数不规范，无法保存 {0}"), 登录信息表.用户名);
+                                context.登录信息表.Add((item as 登录信息表));
+                                context.SaveChanges();
+                            }
+                            else
+                            {
+                                var 登录信息表 = item as 登录信息表;
+                                if (登录信息表 != null)
+                                {
+                                    MessageBox.Show("参数不规范，无法保存");
+                                }
                             }
                         }
                     }
+                    MessageBox.Show("执行完毕");
                 }
-                MessageBox.Show("执行完毕");
+                
             }
             this.LoginInfoBtnClick(sender, e);
              
         }
         #endregion
-
 
         #region 打开Excel文件
         private void FileOpenBtnClick(object sender, RoutedEventArgs e)
@@ -229,9 +229,16 @@ namespace EvalonServer.Window
             {
                 var user =
                     (from l in context.登录信息表 where l.用户名 == this.SearchUserNameTextBox.Text.Trim() select l).FirstOrDefault();
-                context.登录信息表.Remove(user);
-                context.SaveChanges();
-                MessageBox.Show("删除成功");
+                if (user != null)
+                {
+                    context.登录信息表.Remove(user);
+                    context.SaveChanges();
+                    MessageBox.Show("删除成功");
+                }
+                else
+                {
+                    MessageBox.Show("不存在该用户");
+                }
             }
             this.LoginInfoBtnClick(sender, e);
         }

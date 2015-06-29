@@ -89,22 +89,31 @@ namespace EvalonServer.Window
                         return;
                     }
 
-                    var newstudent = new 学生信息表
-                                         {
-                                             学号 = this.C1studentIdTextBox.Text.Trim(),
-                                             姓名 = this.C1StudentNameTextBox.Text.Trim(),
-                                             性别 = this.C1StudentSexualityComboBox.Text.Trim(),
-                                             年龄 = (int)this.C1StudentAgeTextBox.Value
-                                         };
-                    if (Student.StudentCheck(newstudent))
+
+
+                    try
                     {
-                        context.学生信息表.Add(newstudent);
-                        context.SaveChanges();
-                        MessageBox.Show("新学生添加成功");
+                        var newstudent = new 学生信息表
+                        {
+                            学号 = this.C1studentIdTextBox.Text.Trim(),
+                            姓名 = this.C1StudentNameTextBox.Text.Trim(),
+                            性别 = this.C1StudentSexualityComboBox.Text.Trim(),
+                            年龄 = (int)this.C1StudentAgeTextBox.Value
+                        };
+                        if (Student.StudentCheck(newstudent))
+                        {
+                            context.学生信息表.Add(newstudent);
+                            context.SaveChanges();
+                            MessageBox.Show("新学生添加成功");
+                        }
+                        else
+                        {
+                            MessageBox.Show("参数不规范，无法保存");
+                        }
                     }
-                    else
+                    catch (Exception)
                     {
-                        MessageBox.Show("参数不规范，无法保存");
+                        MessageBox.Show("发生了异常");
                     }
                 }
                 else
@@ -141,8 +150,15 @@ namespace EvalonServer.Window
                     var student =
                         (from s in context.学生信息表 where s.学号 == this.C1studentIdTextBox.Text.Trim() select s)
                             .FirstOrDefault();
-                    context.学生信息表.Remove(student);
-                    context.SaveChanges();
+                    if (student != null)
+                    {
+                        context.学生信息表.Remove(student);
+                        context.SaveChanges();
+                    }
+                    else
+                    {
+                        MessageBox.Show("无该学生信息");
+                    }
                 }
             }
 
@@ -212,35 +228,39 @@ namespace EvalonServer.Window
             {
                 var items = this.NewStudentGrid.ItemsSource;
                 var studentids = (from s in context.学生信息表 select s.学号).ToList<string>();
-                foreach (var student in items.OfType<Student>().Select(s => new 学生信息表
-                                                                       {
-                                                                           学号 = s.学号,
-                                                                           姓名 = s.姓名,
-                                                                           性别 = s.性别,
-                                                                           年龄 = s.年龄,
-                                                                           系号 = s.系号,
-                                                                           籍贯 = s.籍贯,
-                                                                           民族 = s.民族
-                                                                       }))
+
+                if (items != null)
                 {
-                    if (studentids.Contains(student.学号))
+                    foreach (var student in items.OfType<Student>().Select(s => new 学生信息表
                     {
-                        MessageBox.Show(string.Format("存在与原来的学号冲突 {0}",student.学号));
-                    }
-                    else
+                        学号 = s.学号,
+                        姓名 = s.姓名,
+                        性别 = s.性别,
+                        年龄 = s.年龄,
+                        系号 = s.系号,
+                        籍贯 = s.籍贯,
+                        民族 = s.民族
+                    }))
                     {
-                        if (Student.StudentCheck(student))
+                        if (studentids.Contains(student.学号))
                         {
-                            context.学生信息表.Add(student);
-                            context.SaveChanges();
+                            MessageBox.Show(string.Format("存在与原来的学号冲突 {0}", student.学号));
                         }
                         else
                         {
-                            MessageBox.Show(string.Format("参数不规范，无法保存{0}",student.学号));
+                            if (Student.StudentCheck(student))
+                            {
+                                context.学生信息表.Add(student);
+                                context.SaveChanges();
+                            }
+                            else
+                            {
+                                MessageBox.Show(string.Format("参数不规范，无法保存{0}", student.学号));
+                            }
                         }
                     }
+                    MessageBox.Show("执行完毕");            
                 }
-                MessageBox.Show("执行完毕");
             }
 
             StudentInfoBtnClick(sender, e);
